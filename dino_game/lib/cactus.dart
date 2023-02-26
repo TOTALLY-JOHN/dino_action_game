@@ -9,28 +9,28 @@ import 'sprite.dart';
 List<Sprite> cacti = [
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_group.png"
-    ..imageWidth = 104
-    ..imageHeight = 100,
+    ..imageWidth = 104 - 10
+    ..imageHeight = 100 - 10,
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_large_1.png"
-    ..imageWidth = 50
-    ..imageHeight = 100,
+    ..imageWidth = 50 - 5
+    ..imageHeight = 100 - 10,
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_large_2.png"
-    ..imageWidth = 98
-    ..imageHeight = 100,
+    ..imageWidth = 98 - 10
+    ..imageHeight = 100 - 10,
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_small_1.png"
-    ..imageWidth = 34
-    ..imageHeight = 70,
+    ..imageWidth = 34 - 5
+    ..imageHeight = 70 - 10,
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_small_2.png"
-    ..imageWidth = 68
-    ..imageHeight = 70,
+    ..imageWidth = 68 - 10
+    ..imageHeight = 70 - 10,
   Sprite()
     ..imagePath = "assets/images/cacti/cacti_small_3.png"
-    ..imageWidth = 107
-    ..imageHeight = 70,
+    ..imageWidth = 107 - 10
+    ..imageHeight = 70 - 8,
 ];
 
 class Cactus extends GameObject {
@@ -44,7 +44,7 @@ class Cactus extends GameObject {
   Rect getRect(Size screenSize, double runDistance) {
     return Rect.fromLTWH(
       (worldLocation.dx - runDistance) * worlToPixelRatio,
-      screenSize.height / 1.75 - sprite.imageHeight,
+      screenSize.height / 1.2 - sprite.imageHeight,
       sprite.imageWidth.toDouble(),
       sprite.imageHeight.toDouble(),
     );

@@ -6,8 +6,8 @@ import 'sprite.dart';
 
 Sprite cloudSprite = Sprite()
   ..imagePath = "assets/images/cloud.png"
-  ..imageWidth = 92
-  ..imageHeight = 27;
+  ..imageWidth = 92 - 15
+  ..imageHeight = 27 - 5;
 
 class Cloud extends GameObject {
   final Offset worldLocation;
@@ -18,7 +18,7 @@ class Cloud extends GameObject {
   Rect getRect(Size screenSize, double runDistance) {
     return Rect.fromLTWH(
       (worldLocation.dx - runDistance) * worlToPixelRatio / 5,
-      screenSize.height / 3 - cloudSprite.imageHeight - worldLocation.dy,
+      screenSize.height / 2 - cloudSprite.imageHeight - worldLocation.dy,
       cloudSprite.imageWidth.toDouble(),
       cloudSprite.imageHeight.toDouble(),
     );

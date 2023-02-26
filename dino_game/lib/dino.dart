@@ -7,32 +7,33 @@ import 'sprite.dart';
 List<Sprite> dino = [
   Sprite()
     ..imagePath = "assets/images/dino/dino_1.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
   Sprite()
     ..imagePath = "assets/images/dino/dino_2.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
   Sprite()
     ..imagePath = "assets/images/dino/dino_3.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
   Sprite()
     ..imagePath = "assets/images/dino/dino_4.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
   Sprite()
     ..imagePath = "assets/images/dino/dino_5.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
   Sprite()
     ..imagePath = "assets/images/dino/dino_6.png"
-    ..imageWidth = 88
-    ..imageHeight = 94,
+    ..imageWidth = dinoWidth
+    ..imageHeight = dinoHeight,
 ];
 
 enum DinoState {
   jumping,
+  boosting,
   running,
   dead,
 }
@@ -51,8 +52,8 @@ class Dino extends GameObject {
   @override
   Rect getRect(Size screenSize, double runDistance) {
     return Rect.fromLTWH(
-      screenSize.width / 10,
-      screenSize.height / 1.75 - currentSprite.imageHeight - dispY,
+      screenSize.width / 8,
+      screenSize.height / 1.2 - currentSprite.imageHeight - dispY,
       currentSprite.imageWidth.toDouble(),
       currentSprite.imageHeight.toDouble(),
     );

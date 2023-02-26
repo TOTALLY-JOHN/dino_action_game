@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,9 +19,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     return const MaterialApp(
       title: 'Flutter Dino',
       debugShowCheckedModeBanner: false,
@@ -67,6 +67,8 @@ class _MyHomePageState extends State<MyHomePage>
     Cloud(worldLocation: const Offset(200, 10)),
     Cloud(worldLocation: const Offset(350, -10)),
   ];
+
+  String highScoreValue = "";
 
   @override
   void initState() {
@@ -234,256 +236,162 @@ class _MyHomePageState extends State<MyHomePage>
         color: (runDistance ~/ dayNightOffest) % 2 == 0
             ? Colors.white
             : Colors.black,
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (dino.state != DinoState.dead) {
-              dino.jump();
-            }
-            if (dino.state == DinoState.dead) {
-              _newGame();
-            }
-          },
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              ...children,
-              AnimatedBuilder(
-                animation: worldController,
-                builder: (context, _) {
-                  return Positioned(
-                    left: screenSize.width / 2 - 30,
-                    top: 100,
-                    child: Text(
-                      'Score: ' + runDistance.toInt().toString(),
-                      style: TextStyle(
-                        color: (runDistance ~/ dayNightOffest) % 2 == 0
-                            ? Colors.black
-                            : Colors.white,
-                      ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ...children,
+            AnimatedBuilder(
+              animation: worldController,
+              builder: (context, _) {
+                return Positioned(
+                  bottom: 20,
+                  child: Text(
+                    'My Score: ${runDistance.toInt().toString()}',
+                    style: TextStyle(
+                      fontFamily: "Mario",
+                      fontSize: 14,
+                      color: (runDistance ~/ dayNightOffest) % 2 == 0
+                          ? Colors.black
+                          : Colors.white,
                     ),
-                  );
-                },
-              ),
-              AnimatedBuilder(
-                animation: worldController,
-                builder: (context, _) {
-                  return Positioned(
-                    left: screenSize.width / 2 - 50,
-                    top: 120,
-                    child: Text(
-                      'High Score: ' + highScore.toString(),
-                      style: TextStyle(
-                        color: (runDistance ~/ dayNightOffest) % 2 == 0
-                            ? Colors.black
-                            : Colors.white,
-                      ),
+                  ),
+                );
+              },
+            ),
+            AnimatedBuilder(
+              animation: worldController,
+              builder: (context, _) {
+                return Positioned(
+                  right: 70,
+                  top: 30,
+                  child: Text(
+                    'HI: ${highScore.toString()}',
+                    style: TextStyle(
+                      fontFamily: "Mario",
+                      fontSize: 16,
+                      color: (runDistance ~/ dayNightOffest) % 2 == 0
+                          ? Colors.black
+                          : Colors.white,
                     ),
-                  );
-                },
-              ),
-              Positioned(
-                right: 20,
-                top: 20,
-                child: IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: () {
-                    _die();
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("Change Physics"),
-                          actions: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                height: 25,
-                                width: 280,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Gravity:"),
-                                    SizedBox(
-                                      child: TextField(
-                                        controller: gravityController,
-                                        key: UniqueKey(),
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
-                                      height: 25,
-                                      width: 75,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                height: 25,
-                                width: 280,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Acceleration:"),
-                                    SizedBox(
-                                      child: TextField(
-                                        controller: accelerationController,
-                                        key: UniqueKey(),
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
-                                      height: 25,
-                                      width: 75,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                height: 25,
-                                width: 280,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Initial Velocity:"),
-                                    SizedBox(
-                                      child: TextField(
-                                        controller: runVelocityController,
-                                        key: UniqueKey(),
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
-                                      height: 25,
-                                      width: 75,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                height: 25,
-                                width: 280,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Jump Velocity:"),
-                                    SizedBox(
-                                      child: TextField(
-                                        controller: jumpVelocityController,
-                                        key: UniqueKey(),
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
-                                      height: 25,
-                                      width: 75,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                height: 25,
-                                width: 280,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Day-Night Offset:"),
-                                    SizedBox(
-                                      child: TextField(
-                                        controller: dayNightOffestController,
-                                        key: UniqueKey(),
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
-                                      height: 25,
-                                      width: 75,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                gravity = int.parse(gravityController.text);
-                                acceleration =
-                                    double.parse(accelerationController.text);
-                                initialVelocity =
-                                    double.parse(runVelocityController.text);
-                                jumpVelocity =
-                                    double.parse(jumpVelocityController.text);
-                                dayNightOffest =
-                                    int.parse(dayNightOffestController.text);
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text(
-                                "Done",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            )
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              Positioned(
-                bottom: 10,
-                child: TextButton(
-                  onPressed: () {
-                    _die();
-                  },
-                  child: const Text(
-                    "Force Kill Dino",
-                    style: TextStyle(color: Colors.red),
+                  ),
+                );
+              },
+            ),
+            jumpButton(),
+            skipButton(),
+            dino.state == DinoState.dead ? gameMenu() : Container(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget jumpButton() {
+    return Positioned(
+      left: 30,
+      bottom: 10,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.black54),
+        ),
+        onPressed: () {
+          if (dino.state != DinoState.dead) {
+            dino.jump();
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          child: const Text(
+            "JUMP",
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget skipButton() {
+    return Positioned(
+      right: 30,
+      bottom: 10,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.black54),
+        ),
+        onPressed: () {
+          if (dino.state != DinoState.dead) {
+            // dino.boost();
+            runDistance = runDistance + 30;
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          child: const Text(
+            "SKIP",
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget gameMenu() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      color: Colors.black54,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (dino.state == DinoState.dead) {
+                  _newGame();
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  "GAME START",
+                  style: TextStyle(
+                    fontFamily: "Mario",
+                    fontSize: 30,
+                    color: Colors.white,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 30),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (Platform.isAndroid) {
+                  SystemNavigator.pop();
+                } else if (Platform.isIOS) {
+                  exit(0);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  "EXIT GAME",
+                  style: TextStyle(
+                    fontFamily: "Mario",
+                    fontSize: 30,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

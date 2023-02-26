@@ -7,12 +7,12 @@ import 'sprite.dart';
 List<Sprite> pteraFrames = [
   Sprite()
     ..imagePath = "assets/images/ptera/ptera_1.png"
-    ..imageHeight = 80
-    ..imageWidth = 92,
+    ..imageHeight = 80 - 10
+    ..imageWidth = 92 - 10,
   Sprite()
     ..imagePath = "assets/images/ptera/ptera_2.png"
-    ..imageHeight = 80
-    ..imageWidth = 92,
+    ..imageHeight = 80 - 10
+    ..imageWidth = 92 - 10,
 ];
 
 class Ptera extends GameObject {
