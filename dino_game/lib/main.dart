@@ -8,15 +8,25 @@ import 'dino.dart';
 import 'game_object.dart';
 import 'ground.dart';
 import 'constants.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void main() {
+// 실제 ID
+// const String unitID = 'ca-app-pub-6797846771285068/1477012825';
+
+// 테스트 ID
+const String androidID = 'ca-app-pub-3940256099942544/1033173712';
+const String iosID = 'ca-app-pub-3940256099942544/4411468910';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
+// ca-app-pub-6797846771285068/1477012825 Android
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
@@ -55,6 +65,11 @@ class _MyHomePageState extends State<MyHomePage>
   late AnimationController worldController;
   Duration lastUpdateCall = const Duration();
 
+  // Ad
+  InterstitialAd? _interstitialAd;
+  int _numInterstitialLoadAttempts = 0;
+  static const int maxFailedLoadAttempts = 3;
+
   List<Cactus> cacti = [Cactus(worldLocation: const Offset(200, 0))];
 
   List<Ground> ground = [
@@ -72,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
+    _createInterstitialAd();
     super.initState();
     worldController =
         AnimationController(vsync: this, duration: const Duration(days: 99));
@@ -80,11 +96,60 @@ class _MyHomePageState extends State<MyHomePage>
     _die();
   }
 
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: Platform.isAndroid ? androidID : iosID,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (_numInterstitialLoadAttempts < maxFailedLoadAttempts) {
+              _createInterstitialAd();
+            }
+          },
+        ));
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd!.show();
+    _interstitialAd = null;
+  }
+
   void _die() {
     setState(() {
       worldController.stop();
       dino.die();
     });
+
+    if (runDistance >= 1000) {
+      _showInterstitialAd();
+    }
   }
 
   void _newGame() {
@@ -209,6 +274,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
+    TargetPlatform os = Theme.of(context).platform;
+
     Size screenSize = MediaQuery.of(context).size;
     List<Widget> children = [];
 
