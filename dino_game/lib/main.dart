@@ -11,10 +11,10 @@ import 'constants.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 // 실제 ID
-// const String unitID = 'ca-app-pub-6797846771285068/1477012825';
+const String androidID = 'ca-app-pub-6797846771285068/1477012825';
 
 // 테스트 ID
-const String androidID = 'ca-app-pub-3940256099942544/1033173712';
+// const String androidID = 'ca-app-pub-3940256099942544/1033173712';
 const String iosID = 'ca-app-pub-3940256099942544/4411468910';
 
 Future<void> main() async {
@@ -102,13 +102,11 @@ class _MyHomePageState extends State<MyHomePage>
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
-            print('$ad loaded');
             _interstitialAd = ad;
             _numInterstitialLoadAttempts = 0;
             _interstitialAd!.setImmersiveMode(true);
           },
           onAdFailedToLoad: (LoadAdError error) {
-            print('InterstitialAd failed to load: $error.');
             _numInterstitialLoadAttempts += 1;
             _interstitialAd = null;
             if (_numInterstitialLoadAttempts < maxFailedLoadAttempts) {
@@ -120,19 +118,18 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _showInterstitialAd() {
     if (_interstitialAd == null) {
-      print('Warning: attempt to show interstitial before loaded.');
       return;
     }
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) =>
-          print('ad onAdShowedFullScreenContent.'),
+          debugPrint('ad onAdShowedFullScreenContent.'),
       onAdDismissedFullScreenContent: (InterstitialAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
+        debugPrint('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
         _createInterstitialAd();
       },
       onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
+        debugPrint('$ad onAdFailedToShowFullScreenContent: $error');
         ad.dispose();
         _createInterstitialAd();
       },
@@ -311,7 +308,8 @@ class _MyHomePageState extends State<MyHomePage>
               animation: worldController,
               builder: (context, _) {
                 return Positioned(
-                  bottom: 20,
+                  top: 30,
+                  left: 30,
                   child: Text(
                     'My Score: ${runDistance.toInt().toString()}',
                     style: TextStyle(
@@ -345,6 +343,7 @@ class _MyHomePageState extends State<MyHomePage>
               },
             ),
             jumpButton(),
+            boostButton(),
             skipButton(),
             dino.state == DinoState.dead ? gameMenu() : Container(),
           ],
@@ -370,6 +369,33 @@ class _MyHomePageState extends State<MyHomePage>
           padding: const EdgeInsets.all(10),
           child: const Text(
             "JUMP",
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget boostButton() {
+    return Positioned(
+      right: 140,
+      bottom: 10,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.black54),
+        ),
+        onPressed: () {
+          if (dino.state != DinoState.dead) {
+            runVelocity += 10;
+            dino.boost();
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          child: const Text(
+            "BOOST",
             style: TextStyle(
               fontSize: 18,
             ),

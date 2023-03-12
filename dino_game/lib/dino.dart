@@ -29,6 +29,10 @@ List<Sprite> dino = [
     ..imagePath = "assets/images/dino/dino_6.png"
     ..imageWidth = dinoWidth
     ..imageHeight = dinoHeight,
+  Sprite()
+    ..imagePath = "assets/images/dino/dino_7.png"
+    ..imageWidth = dinoWidth + 15
+    ..imageHeight = dinoHeight + 15
 ];
 
 enum DinoState {
@@ -63,7 +67,12 @@ class Dino extends GameObject {
   void update(Duration lastUpdate, Duration? elapsedTime) {
     double elapsedTimeSeconds;
     try {
-      currentSprite = dino[(elapsedTime!.inMilliseconds / 100).floor() % 2 + 2];
+      if (state == DinoState.boosting) {
+        currentSprite = dino[6];
+      } else {
+        currentSprite =
+            dino[(elapsedTime!.inMilliseconds / 100).floor() % 2 + 2];
+      }
     } catch (_) {
       currentSprite = dino[0];
     }
@@ -87,6 +96,13 @@ class Dino extends GameObject {
     if (state != DinoState.jumping) {
       state = DinoState.jumping;
       velY = jumpVelocity;
+    }
+  }
+
+  void boost() {
+    if (state != DinoState.jumping && state != DinoState.boosting) {
+      state = DinoState.boosting;
+      velY = 300;
     }
   }
 
