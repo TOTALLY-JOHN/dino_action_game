@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.dino_game">
+    package="com.dinofast">
    <application
-        android:label="dino_game"
+        android:label="Dinofast"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -19,7 +19,7 @@
             <meta-data
               android:resource="@style/NormalTheme"
               android:name="com.google.android.gms.ads.APPLICATION_ID"
-              android:value="ca-app-pub-3940256099942544~1033173712"
+              android:value="ca-app-pub-6797846771285068~7957032637"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -31,5 +31,5 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-    </application>
+            </application>
 </manifest>

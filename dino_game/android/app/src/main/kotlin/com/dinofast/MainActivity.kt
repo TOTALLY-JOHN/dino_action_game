@@ -1,4 +1,4 @@
-package com.example.dino_game
+package com.dinofast
 
 import io.flutter.embedding.android.FlutterActivity
 

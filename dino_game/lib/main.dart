@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -10,11 +11,13 @@ import 'ground.dart';
 import 'constants.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ptera.dart';
+
 // 실제 ID
-const String androidID = 'ca-app-pub-6797846771285068/1477012825';
+// const String androidID = 'ca-app-pub-6797846771285068/2263839676';
 
 // 테스트 ID
-// const String androidID = 'ca-app-pub-3940256099942544/1033173712';
+const String androidID = 'ca-app-pub-6797846771285068/8080606971';
 const String iosID = 'ca-app-pub-3940256099942544/4411468910';
 
 Future<void> main() async {
@@ -32,9 +35,54 @@ class MyApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     return const MaterialApp(
-      title: 'Flutter Dino',
+      title: 'DINOFAST',
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+  @override
+  SplashScreenState createState() => SplashScreenState();
+}
+
+class SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Timer(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const MyHomePage()));
+    });
+    return Scaffold(
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 50,
+          // padding: const EdgeInsets.all(40),
+          color: Colors.white,
+          child: logoTitle(),
+        ),
+      ),
+    );
+  }
+
+  Widget logoTitle() {
+    return Container(
+      padding: const EdgeInsets.all(40),
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: Image.asset(
+          "assets/images/dinofast_icon.png",
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 }
@@ -42,10 +90,10 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
+class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   Dino dino = Dino();
   double runVelocity = initialVelocity;
@@ -81,6 +129,12 @@ class _MyHomePageState extends State<MyHomePage>
     Cloud(worldLocation: const Offset(100, 20)),
     Cloud(worldLocation: const Offset(200, 10)),
     Cloud(worldLocation: const Offset(350, -10)),
+  ];
+
+  List<Ptera> pteras = [
+    Ptera(worldLocation: const Offset(240, 30)),
+    Ptera(worldLocation: const Offset(450, 20)),
+    Ptera(worldLocation: const Offset(600, 40)),
   ];
 
   String highScoreValue = "";
@@ -176,6 +230,14 @@ class _MyHomePageState extends State<MyHomePage>
         Cloud(worldLocation: const Offset(550, -10)),
       ];
 
+      if (runDistance > 1500) {
+        pteras = [
+          Ptera(worldLocation: const Offset(240, 30)),
+          Ptera(worldLocation: const Offset(450, 20)),
+          Ptera(worldLocation: const Offset(600, 40)),
+        ];
+      }
+
       worldController.forward();
     });
   }
@@ -202,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage>
       Rect dinoRect = dino.getRect(screenSize, runDistance);
       for (Cactus cactus in cacti) {
         Rect obstacleRect = cactus.getRect(screenSize, runDistance);
-        if (dinoRect.overlaps(obstacleRect.deflate(20))) {
+        if (dinoRect.overlaps(obstacleRect.deflate(25))) {
           _die();
         }
 
@@ -253,6 +315,27 @@ class _MyHomePageState extends State<MyHomePage>
         }
       }
 
+      for (Ptera ptera in pteras) {
+        Rect obstacleRect = ptera.getRect(screenSize, runDistance);
+        if (dinoRect.overlaps(obstacleRect.deflate(25))) {
+          _die();
+        }
+
+        if (obstacleRect.right < 0) {
+          if (runDistance > 1500) {
+            setState(() {
+              pteras.remove(ptera);
+              pteras.add(Ptera(
+                  worldLocation: Offset(
+                      runDistance +
+                          Random().nextInt(200) +
+                          MediaQuery.of(context).size.width / worlToPixelRatio,
+                      Random().nextDouble() * 50)));
+            });
+          }
+        }
+      }
+
       lastUpdateCall = worldController.lastElapsedDuration!;
     } catch (e) {
       //
@@ -276,22 +359,48 @@ class _MyHomePageState extends State<MyHomePage>
     Size screenSize = MediaQuery.of(context).size;
     List<Widget> children = [];
 
-    for (GameObject object in [...clouds, ...ground, ...cacti, dino]) {
-      children.add(
-        AnimatedBuilder(
-          animation: worldController,
-          builder: (context, _) {
-            Rect objectRect = object.getRect(screenSize, runDistance);
-            return Positioned(
-              left: objectRect.left,
-              top: objectRect.top,
-              width: objectRect.width,
-              height: objectRect.height,
-              child: object.render(),
-            );
-          },
-        ),
-      );
+    if (runDistance < 500) {
+      for (GameObject object in [...clouds, ...ground, ...cacti, dino]) {
+        children.add(
+          AnimatedBuilder(
+            animation: worldController,
+            builder: (context, _) {
+              Rect objectRect = object.getRect(screenSize, runDistance);
+              return Positioned(
+                left: objectRect.left,
+                top: objectRect.top,
+                width: objectRect.width,
+                height: objectRect.height,
+                child: object.render(),
+              );
+            },
+          ),
+        );
+      }
+    } else {
+      for (GameObject object in [
+        ...clouds,
+        ...ground,
+        ...cacti,
+        ...pteras,
+        dino
+      ]) {
+        children.add(
+          AnimatedBuilder(
+            animation: worldController,
+            builder: (context, _) {
+              Rect objectRect = object.getRect(screenSize, runDistance);
+              return Positioned(
+                left: objectRect.left,
+                top: objectRect.top,
+                width: objectRect.width,
+                height: objectRect.height,
+                child: object.render(),
+              );
+            },
+          ),
+        );
+      }
     }
 
     return Scaffold(
